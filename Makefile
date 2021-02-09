@@ -348,8 +348,11 @@ else ifneq ($(shell sed --version | grep -q GNU && echo 1),1)
 $(error Install GNU sed)
 endif
 
+# 99% sure this isn't even needed???
+ifeq (0,1)
 ifneq ($(call HAS_COMMAND,gpg),1)
 $(error Install GnuPG)
+endif
 endif
 
 ifeq ($(call HAS_COMMAND,ldid2),1)
