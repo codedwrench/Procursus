@@ -31,6 +31,7 @@ libboringssl-package: libboringssl-stage
 	# libboringssl.mk Prep libboringssl
 	install_name_tool -id /usr/lib/boringssl/libcrypto.dylib $(BUILD_WORK)/libboringssl/src/build/crypto/libcrypto.dylib
 	install_name_tool -id /usr/lib/boringssl/libssl.dylib $(BUILD_WORK)/libboringssl/src/build/ssl/libssl.dylib
+	install_name_tool -change $(BUILD_WORK)/libboringssl/src/build/crypto/libcrypto.dylib /usr/lib/boringssl/libcrypto.dylib $(BUILD_WORK)/libboringssl/src/build/ssl/libssl.dylib
 
 	# no `make install` target, so copy directly
 	cp -a $(BUILD_WORK)/libboringssl/src/build/crypto/libcrypto.dylib $(BUILD_DIST)/libboringssl/usr/lib/boringssl
