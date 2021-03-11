@@ -1,0 +1,10 @@
+Package: libboringssl-dev
+Version: @DEB_LIBBORINGSSL_V@
+Architecture: @DEB_ARCH@
+Maintainer: @DEB_MAINTAINER@
+Section: Libraries
+Priority: standard
+Depends: libboringssl (= @DEB_LIBBORINGSSL_V@)
+Description: The Android SDK builds against a static version of BoringSSL, Google's internal fork of OpenSSL. This package should never be used for anything but Android SDK packages that already depend on it. These are the development headers and static libraries for it.
+Name: libboringssl-dev
+Tag: purpose::library, role::developer

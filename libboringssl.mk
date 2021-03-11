@@ -18,15 +18,33 @@ else
 libboringssl: libboringssl-setup 
 	cd $(BUILD_WORK)/libboringssl/src && mkdir -p build && cd build \
         	&& cmake .. -DCMAKE_OSX_SYSROOT=iphoneos -DCMAKE_OSX_ARCHITECTURES=$(MEMO_ARCH) \
+	        -DOPENSSL_NO_ASM=1 -DOPENSSL_SMALL=1
+
+	+$(MAKE) -C $(BUILD_WORK)/libboringssl/src/build
+
+	# Now make the shared libraries
+	cd $(BUILD_WORK)/libboringssl/src && mkdir -p build && cd build \
+        	&& cmake .. -DCMAKE_OSX_SYSROOT=iphoneos -DCMAKE_OSX_ARCHITECTURES=$(MEMO_ARCH) \
 	        -DOPENSSL_NO_ASM=1 -DBUILD_SHARED_LIBS=1 -DOPENSSL_SMALL=1
 	+$(MAKE) -C $(BUILD_WORK)/libboringssl/src/build
+
 	touch $(BUILD_WORK)/libboringssl/.build_complete
 endif
 
 libboringssl-package: libboringssl-stage
 	# libboringssl.mk Package Structure
-	rm -rf $(BUILD_DIST)/libboringssl
+	rm -rf $(BUILD_DIST)/libboringssl{,-dev}
+
 	mkdir -p $(BUILD_DIST)/libboringssl/usr/lib/boringssl
+
+	# create dev package as well
+	mkdir -p $(BUILD_DIST)/libboringssl-dev/usr/{include/android/openssl,lib/boringssl}
+
+	# copy stuff for the dev packet
+	cp -a $(BUILD_WORK)/libboringssl/include/openssl/* $(BUILD_DIST)/libboringssl-dev/usr/include/android/openssl
+
+	cp -a $(BUILD_WORK)/libboringssl/src/build/crypto/libcrypto.a $(BUILD_DIST)/libboringssl-dev/usr/lib/boringssl
+	cp -a $(BUILD_WORK)/libboringssl/src/build/ssl/libssl.a $(BUILD_DIST)/libboringssl-dev/usr/lib/boringssl
 	
 	# libboringssl.mk Prep libboringssl
 	install_name_tool -id /usr/lib/boringssl/libcrypto.dylib $(BUILD_WORK)/libboringssl/src/build/crypto/libcrypto.dylib
@@ -39,11 +57,13 @@ libboringssl-package: libboringssl-stage
 	
 	# libboringssl.mk Sign
 	$(call SIGN,libboringssl,general.xml)
+	$(call SIGN,libboringssl-dev,general.xml)
 	
 	# libboringssl.mk Make .debs
 	$(call PACK,libboringssl,DEB_LIBBORINGSSL_V)
+	$(call PACK,libboringssl-dev,DEB_LIBBORINGSSL_V)
 	
 	# libboringssl.mk Build cleanup
-	rm -rf $(BUILD_DIST)/libboringssl
+	rm -rf $(BUILD_DIST)/libboringssl{,-dev}
 
 .PHONY: libboringssl libboringssl-package
